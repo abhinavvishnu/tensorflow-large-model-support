@@ -127,7 +127,7 @@ def run_model(args):
     input_shape = (image_dim, image_dim, 3)
 
     num_classes = 15
-    batch_size = 1
+    batch_size = args.batch_size 
 
     resnet50 = tf.keras.applications.ResNet50(weights=None, include_top=True,
                                               input_shape=input_shape,
@@ -146,6 +146,9 @@ if __name__ == "__main__":
     parser.add_argument("--steps", type=int,
                         default=10,
                         help='Number of steps per epoch. (Default 10)')
+    parser.add_argument("--batch_size", type=int,
+                        default=1,
+                        help='Number of batch size. (Default 1)')
     parser.add_argument("--image_size", type=int,
                         default=500,
                         help='Dimension of one side of the square image '
