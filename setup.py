@@ -2,7 +2,8 @@ from setuptools import find_packages
 from setuptools import setup
 
 install_requires = [
-    'tensorflow >= 1.5',
+# Disable the accidental prefetch of CPU version of TensorFlow
+#    'tensorflow >= 1.5',
     'toposort >= 1.5',
 ]
 
