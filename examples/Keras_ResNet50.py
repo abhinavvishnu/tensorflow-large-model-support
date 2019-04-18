@@ -59,7 +59,7 @@ from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.callbacks import Callback
 from tensorflow_large_model_support import LMSKerasCallback
 import ctypes
-_cudart = ctypes.CDLL('libcudart.so')
+#_cudart = ctypes.CDLL('libcudart.so')
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -75,10 +75,10 @@ class CudaProfileCallback(Callback):
     def on_batch_begin(self, batch, logs=None):
         if batch == self._start and self.epoch_keeper == self._epoch:
             print('Starting cuda profiler')
-            _cudart.cudaProfilerStart()
+#            _cudart.cudaProfilerStart()
         if batch == self._end and self.epoch_keeper == self._epoch:
             print('Stopping cuda profiler')
-            _cudart.cudaProfilerStop()
+#            _cudart.cudaProfilerStop()
 
 def random_image_generator(batch_size, num_classes, input_shape):
     # This generator yields batches of randomly generated images and categories.
