@@ -150,14 +150,18 @@ def run_model(args):
                            epochs=args.epochs, callbacks=get_callbacks(args))
 
 """
+def execute_model(model, input_shape):
+    model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+    random_generator = random_image_generator(args.batch_size, args.num_classes,
+                                              input_shape)
+    model.fit_generator(random_generator, steps_per_epoch=args.steps,
+                           epochs=args.epochs, callbacks=get_callbacks(args))
+
 def run_model(args):
     # Configure the memory optimizer
     config = tf.ConfigProto()
     config.graph_options.rewrite_options.memory_optimization = rewriter_config_pb2.RewriterConfig.SCHEDULING_HEURISTICS
     K.set_session(tf.Session(config=config))
-
-    image_dim = args.image_size
-    input_shape = (image_dim, image_dim, 3)
 
     num_classes = args.num_classes
     batch_size = args.batch_size
@@ -200,11 +204,7 @@ def run_model(args):
         model = ResNet50(weights=None, include_top=True,
                                               input_shape=input_shape,
                                               classes=num_classes)
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
-    random_generator = random_image_generator(batch_size, num_classes,
-                                              input_shape)
-    model.fit_generator(random_generator, steps_per_epoch=args.steps,
-                           epochs=args.epochs, callbacks=get_callbacks(args))
+    execute_model(model, input_shape)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -235,6 +235,9 @@ if __name__ == "__main__":
     parser.add_argument("--num_classes", type=int,
                         default=10,
                         help='Number of classes in the model. Default 10 (all)')
+    parser.add_argument("--autotune_image_size", type=int,
+                        default=0,
+                        help='Number of classes in the model. Default 10 (all)')
     parser.add_argument("--model", type=str,
                         default="ResNet50",
                         help='Deep neural network model. Default ResNet50. Please check'
@@ -249,4 +252,12 @@ if __name__ == "__main__":
     parser.set_defaults(nvprof=False)
 
     args = parser.parse_args()
+    
+    image_dim = args.image_size
+    input_shape = (image_dim, image_dim, 3)
+   
+    #TODO, the code is incomplete
+    if autotune_image_size:
+       run_model(args)
+
     run_model(args)
