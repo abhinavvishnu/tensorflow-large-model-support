@@ -63,9 +63,6 @@ from tensorflow.python.keras.applications.vgg16 import VGG16
 from tensorflow.python.keras.applications.resnet50 import ResNet50
 from tensorflow.python.keras.applications.vgg19 import VGG19
 from tensorflow.keras.applications.inception_v3 import InceptionV3
-
-
-
 import ctypes
 #_cudart = ctypes.CDLL('libcudart.so')
 
@@ -127,6 +124,7 @@ def get_callbacks(args):
 
     return callbacks
 
+"""
 def run_model(args):
     # Configure the memory optimizer
     config = tf.ConfigProto()
@@ -137,6 +135,28 @@ def run_model(args):
     input_shape = (image_dim, image_dim, 3)
 
     num_classes = 15
+    batch_size = args.batch_size
+
+    resnet50 = tf.keras.applications.ResNet50(weights=None, include_top=True,
+                                              input_shape=input_shape,
+                                              classes=num_classes)
+    resnet50.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+    random_generator = random_image_generator(batch_size, num_classes,
+                                              input_shape)
+    resnet50.fit_generator(random_generator, steps_per_epoch=args.steps,
+                           epochs=args.epochs, callbacks=get_callbacks(args))
+
+"""
+def run_model(args):
+    # Configure the memory optimizer
+    config = tf.ConfigProto()
+    config.graph_options.rewrite_options.memory_optimization = rewriter_config_pb2.RewriterConfig.SCHEDULING_HEURISTICS
+    K.set_session(tf.Session(config=config))
+
+    image_dim = args.image_size
+    input_shape = (image_dim, image_dim, 3)
+
+    num_classes = args.num_classes
     batch_size = args.batch_size
 
     resnet50 = tf.keras.applications.ResNet50(weights=None, include_top=True,
@@ -174,6 +194,14 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int,
                         default=1,
                         help='batch size. Default 1 (all)')
+    parser.add_argument("--num_classes", type=int,
+                        default=10,
+                        help='Number of classes in the model. Default 10 (all)')
+    parser.add_argument("--model", type=str,
+                        default="ResNet50",
+                        help='Deep neural network model. Default ResNet50. Please check
+                        keras.applications for supported models')
+    
     parser.add_argument("--lb", type=int,
                         default=1,
                         help='Lowerbound value for LMS. A tensor will be '
