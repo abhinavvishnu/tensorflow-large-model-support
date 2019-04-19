@@ -124,7 +124,6 @@ def get_callbacks(args):
 
     return callbacks
 
-"""
 def run_model(args):
     # Configure the memory optimizer
     config = tf.ConfigProto()
@@ -134,7 +133,7 @@ def run_model(args):
     image_dim = args.image_size
     input_shape = (image_dim, image_dim, 3)
 
-    num_classes = 15
+    num_classes = args.num_classes
     batch_size = args.batch_size
 
     resnet50 = tf.keras.applications.ResNet50(weights=None, include_top=True,
@@ -159,15 +158,21 @@ def run_model(args):
     num_classes = args.num_classes
     batch_size = args.batch_size
 
-    resnet50 = tf.keras.applications.ResNet50(weights=None, include_top=True,
+    model_name = args.model
+    if model_name == 'ResNet50':
+        model = tf.keras.applications.ResNet50(weights=None, include_top=True,
                                               input_shape=input_shape,
                                               classes=num_classes)
-    resnet50.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+    model = tf.keras.applications.ResNet50(weights=None, include_top=True,
+                                              input_shape=input_shape,
+                                              classes=num_classes)
+    model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
     random_generator = random_image_generator(batch_size, num_classes,
                                               input_shape)
-    resnet50.fit_generator(random_generator, steps_per_epoch=args.steps,
+    model.fit_generator(random_generator, steps_per_epoch=args.steps,
                            epochs=args.epochs, callbacks=get_callbacks(args))
 
+"""
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int,
@@ -199,8 +204,8 @@ if __name__ == "__main__":
                         help='Number of classes in the model. Default 10 (all)')
     parser.add_argument("--model", type=str,
                         default="ResNet50",
-                        help='Deep neural network model. Default ResNet50. Please check
-                        keras.applications for supported models')
+                        help='Deep neural network model. Default ResNet50. Please check'
+                        ' keras.applications for supported models')
     
     parser.add_argument("--lb", type=int,
                         default=1,
@@ -208,28 +213,7 @@ if __name__ == "__main__":
                              'swapped in during the backward phase at least lb '
                              'nodes before it in the graph. Default 1.')
 
-    # nvprof parameters
-    nvprof_group = parser.add_mutually_exclusive_group(required=False)
-    nvprof_group.add_argument('--nvprof', dest='nvprof', action='store_true',
-                              help='Enable CUDA profilng for nvprof profiling.')
-    nvprof_group.add_argument('--no-nvprof', dest='nvprof',
-                              action='store_false',
-                              help='Disable CUDA profilng for nvprof '
-                                   'profiling. (Default)')
     parser.set_defaults(nvprof=False)
-
-    parser.add_argument("--nvprof_epoch", type=int,
-                        default=1,
-                        help='The epoch in which to run CUDA profiling. '
-                             '(Default 1)')
-    parser.add_argument("--nvprof_start", type=int,
-                        default=4,
-                        help='The batch in which to start CUDA profiling. '
-                             '(Default 4)')
-    parser.add_argument("--nvprof_stop", type=int,
-                        default=9,
-                        help='The batch in which to stop CUDA profiling. '
-                             '(Default 9)')
 
     args = parser.parse_args()
     run_model(args)
