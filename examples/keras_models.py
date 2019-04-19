@@ -58,6 +58,14 @@ from tensorflow.core.protobuf import rewriter_config_pb2
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.callbacks import Callback
 from tensorflow_large_model_support import LMSKerasCallback
+
+from tensorflow.python.keras.applications.vgg16 import VGG16
+from tensorflow.python.keras.applications.resnet50 import ResNet50
+from tensorflow.python.keras.applications.vgg19 import VGG19
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+
+
+
 import ctypes
 #_cudart = ctypes.CDLL('libcudart.so')
 
