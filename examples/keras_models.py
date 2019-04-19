@@ -123,7 +123,7 @@ def get_callbacks(args):
         callbacks.append(lms)
 
     return callbacks
-
+"""
 def run_model(args):
     # Configure the memory optimizer
     config = tf.ConfigProto()
@@ -163,7 +163,13 @@ def run_model(args):
         model = tf.keras.applications.ResNet50(weights=None, include_top=True,
                                               input_shape=input_shape,
                                               classes=num_classes)
-    model = tf.keras.applications.ResNet50(weights=None, include_top=True,
+    elif model_name == 'VGG16':
+        model = VGG16(weights=None, include_top=True,
+                                              input_shape=input_shape,
+                                              classes=num_classes)
+    else:
+        print('Running with ResNet50 -- the default model')
+        model = ResNet50(weights=None, include_top=True,
                                               input_shape=input_shape,
                                               classes=num_classes)
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
@@ -172,7 +178,6 @@ def run_model(args):
     model.fit_generator(random_generator, steps_per_epoch=args.steps,
                            epochs=args.epochs, callbacks=get_callbacks(args))
 
-"""
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int,
