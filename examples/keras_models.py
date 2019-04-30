@@ -242,7 +242,7 @@ if __name__ == "__main__":
                         default="ResNet50",
                         help='Deep neural network model. Default ResNet50. Please check'
                         ' keras.applications for supported models')
-    
+
     parser.add_argument("--lb", type=int,
                         default=1,
                         help='Lowerbound value for LMS. A tensor will be '
@@ -252,12 +252,10 @@ if __name__ == "__main__":
     parser.set_defaults(nvprof=False)
 
     args = parser.parse_args()
-    
+
     image_dim = args.image_size
     input_shape = (image_dim, image_dim, 3)
-   
+
     #TODO, the code is incomplete
-    if autotune_image_size:
-       run_model(args)
 
     run_model(args)
