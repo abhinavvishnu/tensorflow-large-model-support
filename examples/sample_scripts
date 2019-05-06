@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export 
+for ((is = 256; is <=256; is *= 2))
+do
+#for ((bs = 256; bs <=256; bs *= 2))
+for ((bs = 144; bs <=144; bs *= 2))
+do
+#	python3 keras_models.py --batch_size $bs --image_size $is --epoch=3 | tee nolms.bs$bs.is$is
+	python3 keras_models.py --lms --batch_size $bs --image_size $is --epochs=3 | tee lms.bs$bs.is$is
+done
+done

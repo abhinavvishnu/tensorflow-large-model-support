@@ -67,6 +67,7 @@ from tensorflow.python.keras.applications.xception import Xception
 from tensorflow.python.keras.applications.mobilenet import MobileNet
 from tensorflow.python.keras.applications.mobilenet_v2 import MobileNetV2
 
+import time
 import ctypes
 #_cudart = ctypes.CDLL('libcudart.so')
 
@@ -154,8 +155,19 @@ def execute_model(model, input_shape):
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
     random_generator = random_image_generator(args.batch_size, args.num_classes,
                                               input_shape)
-    model.fit_generator(random_generator, steps_per_epoch=args.steps,
+    # This is the warmup phase
+    model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
+                           epochs=1, callbacks=get_callbacks(args))
+
+    # this is the actual timing calculation
+
+
+    start = time.time()
+    model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
                            epochs=args.epochs, callbacks=get_callbacks(args))
+    end = time.time()
+    print('images-per-second:') 
+    print((args.batch_size * args.epochs * args.steps)/(end - start))
 
 def run_model(args):
     # Configure the memory optimizer
@@ -212,10 +224,10 @@ if __name__ == "__main__":
                         default=1,
                         help='Number of epochs to run. (Default 1)')
     parser.add_argument("--steps", type=int,
-                        default=10,
+                        default=4,
                         help='Number of steps per epoch. (Default 10)')
     parser.add_argument("--image_size", type=int,
-                        default=500,
+                        default=256,
                         help='Dimension of one side of the square image '
                              'to be generated. (Default 500)')
     # LMS parameters
@@ -230,14 +242,14 @@ if __name__ == "__main__":
                         help='The number of tensors to swap. Default -1 (all)')
     #AMD Change
     parser.add_argument("--batch_size", type=int,
-                        default=1,
+                        default=32,
                         help='batch size. Default 1 (all)')
     parser.add_argument("--num_classes", type=int,
                         default=10,
                         help='Number of classes in the model. Default 10 (all)')
     parser.add_argument("--autotune_image_size", type=int,
                         default=0,
-                        help='Number of classes in the model. Default 10 (all)')
+                        help='Auto-tune the Image size')
     parser.add_argument("--model", type=str,
                         default="ResNet50",
                         help='Deep neural network model. Default ResNet50. Please check'
@@ -255,7 +267,5 @@ if __name__ == "__main__":
 
     image_dim = args.image_size
     input_shape = (image_dim, image_dim, 3)
-
-    #TODO, the code is incomplete
 
     run_model(args)
