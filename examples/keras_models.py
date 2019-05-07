@@ -124,7 +124,8 @@ def get_callbacks(args):
         # speeds up graph analysis time.
         starting_names = ['bn_conv1/cond/pred_id']
         lms = LMSKerasCallback(n_tensors=args.n_tensors, lb=args.lb,
-                               starting_op_names=starting_names)
+                               starting_op_names=starting_names,
+                               swap_branches=True)
         callbacks.append(lms)
 
     return callbacks
@@ -160,8 +161,6 @@ def execute_model(model, input_shape):
                            epochs=1, callbacks=get_callbacks(args))
 
     # this is the actual timing calculation
-
-
     start = time.time()
     model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
                            epochs=args.epochs, callbacks=get_callbacks(args))
@@ -171,8 +170,11 @@ def execute_model(model, input_shape):
 
 def run_model(args):
     # Configure the memory optimizer
+    #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
     config = tf.ConfigProto()
     config.graph_options.rewrite_options.memory_optimization = rewriter_config_pb2.RewriterConfig.SCHEDULING_HEURISTICS
+    config.gpu_options.allow_growth=True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.3
     K.set_session(tf.Session(config=config))
 
     num_classes = args.num_classes
