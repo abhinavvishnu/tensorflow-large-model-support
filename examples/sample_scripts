@@ -1,12 +1,20 @@
 #!/bin/bash
 
-export 
 for ((is = 256; is <=256; is *= 2))
 do
-#for ((bs = 256; bs <=256; bs *= 2))
-for ((bs = 144; bs <=144; bs *= 2))
-do
-#	python3 keras_models.py --batch_size $bs --image_size $is --epoch=3 | tee nolms.bs$bs.is$is
-	python3 keras_models.py --lms --batch_size $bs --image_size $is --epochs=3 | tee lms.bs$bs.is$is
-done
+  #for ((bs = 96; bs <= 96; bs *= 2))
+  #  for ((bs = 128; bs <= 128; bs *= 2))
+  for ((bs = 64; bs <= 64; bs *= 2))
+  do
+    python3 keras_models.py --batch_size $bs --image_size $is --epoch=3 | tee nolms.bs$bs.is$is
+    for ((nt = 2; nt <= 128; nt *= 2))
+    do  
+      for ((lb = 2; lb <= 128; lb *=2))
+      do
+        python3 keras_models.py --n_tensors=$nt --lb=$lb --autotune_image_size=1
+        --lms --batch_size $bs --image_size $is --epochs=3 | tee
+        lms.bs$bs.is$is.nt$nt.lb$lb
+      done
+    done
+  done
 done

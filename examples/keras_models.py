@@ -125,7 +125,7 @@ def get_callbacks(args):
         starting_names = ['bn_conv1/cond/pred_id']
         lms = LMSKerasCallback(n_tensors=args.n_tensors, lb=args.lb,
                                starting_op_names=starting_names,
-                               swap_branches=True)
+                               swap_branches=True, fuse_swapins=True)
         callbacks.append(lms)
 
     return callbacks
@@ -165,16 +165,15 @@ def execute_model(model, input_shape):
     model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
                            epochs=args.epochs, callbacks=get_callbacks(args))
     end = time.time()
-    print('images-per-second:') 
-    print((args.batch_size * args.epochs * args.steps)/(end - start))
+    print('images-per-second:', (args.batch_size * args.epochs * args.steps)/(end - start))
 
 def run_model(args):
     # Configure the memory optimizer
     #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
     config = tf.ConfigProto()
     config.graph_options.rewrite_options.memory_optimization = rewriter_config_pb2.RewriterConfig.SCHEDULING_HEURISTICS
-    config.gpu_options.allow_growth=True
-    config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    #config.gpu_options.allow_growth=True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.5
     K.set_session(tf.Session(config=config))
 
     num_classes = args.num_classes
@@ -270,4 +269,7 @@ if __name__ == "__main__":
     image_dim = args.image_size
     input_shape = (image_dim, image_dim, 3)
 
-    run_model(args)
+    if args.autotune_image_size:
+        run_model(args)
+    else:
+        run_model(args)
