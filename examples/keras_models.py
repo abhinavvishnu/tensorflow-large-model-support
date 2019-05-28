@@ -59,6 +59,8 @@ from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.callbacks import Callback
 from tensorflow_large_model_support import LMSKerasCallback
 
+import keras as keras
+
 from tensorflow.python.keras.applications.vgg16 import VGG16
 from tensorflow.python.keras.applications.resnet50 import ResNet50
 from tensorflow.python.keras.applications.vgg19 import VGG19
@@ -162,8 +164,12 @@ def execute_model(model, input_shape):
 
     # this is the actual timing calculation
     start = time.time()
-    model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
-                           epochs=args.epochs, callbacks=get_callbacks(args))
+    model.fit_generator(random_generator, verbose=0, steps_per_epoch=args.steps,
+                           epochs=args.epochs,
+                           callbacks=None,shuffle=False)
+    #model.fit_generator(random_generator, verbose=1, steps_per_epoch=args.steps,
+    #                       epochs=args.epochs,
+    #                       callbacks=get_callbacks(args),shuffle=False)
     end = time.time()
     print('images-per-second:', (args.batch_size * args.epochs * args.steps)/(end - start))
 
@@ -185,7 +191,11 @@ def run_model(args):
                                               input_shape=input_shape,
                                               classes=num_classes)
     elif model_name == 'ResNet101':
-        model = tensorflow.python.keras.applications.resnet.ResNet101(weights=None, include_top=True,
+        model = keras.applications.resnet.ResNet101(weights=None, include_top=True,
+                                              input_shape=input_shape,
+                                              classes=num_classes)
+    elif model_name == 'ResNet152':
+        model = ResNet152(weights=None, include_top=True,
                                               input_shape=input_shape,
                                               classes=num_classes)
     elif model_name == 'VGG16':
@@ -246,7 +256,7 @@ if __name__ == "__main__":
                         default=32,
                         help='batch size. Default 1 (all)')
     parser.add_argument("--num_classes", type=int,
-                        default=10,
+                        default=1000,
                         help='Number of classes in the model. Default 10 (all)')
     parser.add_argument("--autotune_image_size", type=int,
                         default=0,
